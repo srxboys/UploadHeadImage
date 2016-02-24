@@ -9,7 +9,6 @@
 #import "GHSUploadData.h"
 #define APP_UserHeadImgPath          @"APP_userHeadImgPNG.PNG" //头像图片地址名
 
-
 GHSUploadData * _uploadData = nil;
 
 //声明block
@@ -52,7 +51,7 @@ typedef void (^SuccessBlock)(UIImage * obj, BOOL sucess);
     
     NSURL *url=[NSURL URLWithString:str];
     _request=[[NSURLRequest alloc]initWithURL:url];
-    _connection=[[NSURLConnection alloc]initWithRequest:_request delegate:self];
+    _connection=[[NSURLConnection alloc] initWithRequest:_request delegate:self];
 }
 
 
@@ -79,7 +78,11 @@ typedef void (^SuccessBlock)(UIImage * obj, BOOL sucess);
     if(_mutData.length > 0) {
         
         NSData * data = [NSData dataWithContentsOfFile:[[GHSUploadData documentDirectory] stringByAppendingPathComponent:APP_UserHeadImgPath]];
-        if(![data isEqualToData:_mutData]) {
+        
+//        UIImage * image = [UIImage im]
+        
+        
+        if(![data isEqualToData:_mutData] && [self boolImageWithData:_mutData]) {
             [GHSUploadData writeData:_mutData toFile:APP_UserHeadImgPath];
         }
         
@@ -92,6 +95,41 @@ typedef void (^SuccessBlock)(UIImage * obj, BOOL sucess);
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     _sblock(nil,NO);
 }
+
+
+
+
+#pragma mark - ~~~~~~~~~~~ 判断是否为图片 ~~~~~~~~~~~~~~~
+-(BOOL)boolImageWithData:(NSData *)imageData {
+    if (imageData.length > 4) {
+        const unsigned char * bytes = [imageData bytes];
+        
+        if (bytes[0] == 0xff &&
+            bytes[1] == 0xd8 &&
+            bytes[2] == 0xff)
+        {
+            return YES;
+        }
+        
+        if (bytes[0] == 0x89 &&
+            bytes[1] == 0x50 &&
+            bytes[2] == 0x4e &&
+            bytes[3] == 0x47)
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+
+
+
+
+
+
+
+
 
 
 + (UIImage *)uploadDataTempImgWithURL:(NSString *)urlString backBlock:(void (^)(UIImage *, BOOL))sblock {
@@ -175,4 +213,8 @@ typedef void (^SuccessBlock)(UIImage * obj, BOOL sucess);
 }
 
 
+
 @end
+
+
+
